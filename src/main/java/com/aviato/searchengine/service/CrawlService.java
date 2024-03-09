@@ -1,14 +1,11 @@
 package com.aviato.searchengine.service;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import java.io.IOException;
 import java.util.*;
 
 public interface CrawlService {
-    void initializeUrl(String url);
-    Document loadPage() throws IOException;
+    void initializeCrawlService(String url) throws IOException;
+    void loadPage() throws IOException;
 
     List<String> extractWords() throws IOException;
 

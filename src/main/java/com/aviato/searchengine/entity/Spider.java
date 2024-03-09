@@ -1,6 +1,9 @@
-package com.aviato.searchengine.crawler;
+package com.aviato.searchengine.entity;
 
 import com.aviato.searchengine.service.impl.CrawlServiceImpl;
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class Spider {
     private List<String> urlList;
     private List<String> visitedUrlList;
@@ -16,6 +20,8 @@ public class Spider {
     private Map<String, Map<String, String>> MapOfMetaDataMap;
 
     private CrawlServiceImpl crawlServiceImpl;
+
+    final Logger logger = LoggerFactory.getLogger(getClass());
 
     public Spider(String url) {
         this.urlList = new ArrayList<>();
@@ -34,14 +40,14 @@ public class Spider {
         this.MapOfMetaDataMap = new HashMap<>();
     }
 
-    public void visitFirstPage() throws IOException {
+    public void visitPage() throws IOException {
         if (this.urlList != null && !this.urlList.isEmpty()) {
             String targetUrl = urlList.get(0);
             urlList.remove(0);
             visitedUrlList.add(targetUrl);
 
             this.crawlServiceImpl = new CrawlServiceImpl();
-            this.crawlServiceImpl.initializeUrl(targetUrl);
+            this.crawlServiceImpl.initializeCrawlService(targetUrl);
 
             List<String> extractedListOfLinks = crawlServiceImpl.extractLinks();
             this.MapOfNestedUrlList.put(targetUrl, extractedListOfLinks);
@@ -63,29 +69,30 @@ public class Spider {
 
     public void visitNumberOfPage(int number, boolean isVisitAll) throws IOException {
         if (this.urlList == null || this.urlList.isEmpty() || number <= 0) {
+            logger.error("urlList is null / empty or the numberOfPage to visit is less than or equal to 0");
             return;
         }
         if (isVisitAll) {
             while (!this.urlList.isEmpty()) {
-                this.visitFirstPage();
+                this.visitPage();
             }
         } else {
             while (!this.urlList.isEmpty() && number > 0) {
-                this.visitFirstPage();
+                this.visitPage();
                 number -= 1;
             }
         }
     }
 
-    public List<String> getMapOfWordList(String url) {
+    public List<String> getWordList(String url) {
         return this.MapOfWordList.get(url);
     }
 
-    public List<String> getMapOfNestedUrlList(String url) {
+    public List<String> getNestedUrlList(String url) {
         return this.MapOfNestedUrlList.get(url);
     }
 
-    public Map<String, String> getMapOfMetadata(String url) {
+    public Map<String, String> getMetadata(String url) {
         return this.MapOfMetaDataMap.get(url);
     }
 }
